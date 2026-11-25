@@ -1,0 +1,260 @@
+/* ==================== 主题变量 ==================== */
+/* 默认：极简白 */
+:root {
+    --bg: #f6f7fb;
+    --panel: #ffffff;
+    --text: #1f2329;
+    --text-secondary: #6b7280;
+    --border: #e5e7eb;
+    --primary: #2f6fed;
+    --primary-soft: #eef3fe;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    --radius: 12px;
+}
+
+/* 暗夜黑 */
+[data-theme='dark'] {
+    --bg: #0d1117;
+    --panel: #161b22;
+    --text: #e6edf3;
+    --text-secondary: #8b949e;
+    --border: #30363d;
+    --primary: #58a6ff;
+    --primary-soft: #1f2a3a;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* 护眼绿 */
+[data-theme='green'] {
+    --bg: #eef3ec;
+    --panel: #ffffff;
+    --text: #2c3a2c;
+    --text-secondary: #5c6b5c;
+    --border: #d4ddd2;
+    --primary: #3f8f5f;
+    --primary-soft: #e3efe6;
+    --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+/* ==================== 全局 ==================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+    'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+    /* 主题切换时的平滑过渡 */
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+ul, ol {
+    list-style: none;
+}
+
+#app {
+    min-height: 100vh;
+}
+
+/* ==================== 布局 ==================== */
+.blog-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+}
+
+.header-inner {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.blog-logo {
+    font-size: 19px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
+.blog-logo .logo-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--primary);
+}
+
+.header-nav {
+    display: flex;
+    gap: 4px;
+}
+
+.header-nav a {
+    padding: 6px 13px;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+.header-nav a:hover {
+    color: var(--text);
+    background: var(--primary-soft);
+}
+
+.header-nav a.router-link-active {
+    color: var(--primary);
+    background: var(--primary-soft);
+    font-weight: 600;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* 导航搜索框 */
+.search-input {
+    width: 200px;
+    --el-border-radius-base: 999px;
+}
+
+.search-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 2px 0;
+}
+
+.search-item-icon {
+    color: var(--primary);
+}
+
+.si-title {
+    font-size: 13.5px;
+    color: var(--text);
+    line-height: 1.4;
+}
+
+.si-desc {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+/* 主题切换按钮（下拉） */
+.theme-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s, transform 0.15s;
+}
+
+.theme-btn:hover {
+    background: var(--primary-soft);
+    transform: translateY(-1px);
+}
+
+/* 三栏主体 */
+.blog-body {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 24px;
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr) 280px;
+    gap: 20px;
+    align-items: start;
+}
+
+/* 侧栏通用卡片 */
+.side-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+}
+
+.side-card h3 {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* 中间内容区 */
+.main-content {
+    min-height: 60vh;
+}
+
+/* 通用卡片 */
+.card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+}
+
+/* 响应式：窄屏时侧栏收起 */
+@media (max-width: 1100px) {
+    .blog-body {
+        grid-template-columns: 1fr;
+    }
+    .left-sidebar,
+    .right-sidebar {
+        display: none;
+    }
+    .search-input {
+        display: none;
+    }
+}
+
+@media (max-width: 720px) {
+    .header-nav {
+        display: none;
+    }
+    .blog-body {
+        padding: 12px;
+    }
+}
