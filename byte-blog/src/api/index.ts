@@ -108,7 +108,7 @@ export interface Stats {
 
 // ============ axios 封装 ============
 const http = axios.create({
-    baseURL: '/api',
+        baseURL: 'https://api.byteblog.dpdns.org/api',
     timeout: 15000,
 })
 
