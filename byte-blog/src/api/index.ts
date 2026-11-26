@@ -106,9 +106,19 @@ export interface Stats {
     runDays: number
 }
 
+// ============ 接口基地址 ============
+/**
+ * 本地开发：baseURL 用相对路径 /api，交给 vite 的 proxy 转发到 localhost:8080
+ * 生产构建：前端在 Pages、后端在隧道后面，属于两个域名，必须写绝对地址
+ * 想换后端地址，构建前给一个环境变量即可：VITE_API_BASE=xxx npm run build
+ */
+export const API_BASE: string =
+    (import.meta.env.VITE_API_BASE as string | undefined) ||
+    (import.meta.env.PROD ? 'https://api.byteblog.dpdns.org/api' : '/api')
+
 // ============ axios 封装 ============
 const http = axios.create({
-    baseURL: '/api',
+    baseURL: API_BASE,
     timeout: 15000,
 })
 
@@ -393,7 +403,7 @@ export async function streamAgentChat(
     handlers: AgentStreamHandlers,
     signal?: AbortSignal,
 ): Promise<void> {
-    const resp = await fetch('/api/agent/chat', {
+    const resp = await fetch(`${API_BASE}/agent/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question }),

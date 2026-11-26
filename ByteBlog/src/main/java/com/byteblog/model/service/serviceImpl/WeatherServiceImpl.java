@@ -94,14 +94,13 @@ public class WeatherServiceImpl implements WeatherService {
 
     private WeatherVo fetch() {
         String url = buildUrl();
-        HttpRequest request = HttpRequest.newBuilder(URI.create(url))
-                .timeout(Duration.ofSeconds(Math.max(3, props.getTimeoutSeconds())))
-                .header("X-QW-Api-Key", props.getApiKey().trim())
-                .header("Accept-Encoding", "gzip")
-                .GET()
-                .build();
-
         try {
+            HttpRequest request = HttpRequest.newBuilder(URI.create(url))
+                    .timeout(Duration.ofSeconds(Math.max(3, props.getTimeoutSeconds())))
+                    .header("X-QW-Api-Key", props.getApiKey().trim())
+                    .header("Accept-Encoding", "gzip")
+                    .GET()
+                    .build();
             HttpResponse<byte[]> response =
                     httpClient.send(request, HttpResponse.BodyHandlers.ofByteArray());
 
@@ -118,8 +117,13 @@ public class WeatherServiceImpl implements WeatherService {
             Thread.currentThread().interrupt();
             log.warn("天气请求被中断");
             return null;
+        } catch (IllegalArgumentException e) {
+            log.warn("天气请求地址不合法：{}，检查 weather.host / weather.latitude / weather.longitude", url);
+            return null;
         } catch (Exception e) {
-            log.warn("天气请求失败：{}", e.getMessage());
+            // 连接被拒、未知主机这类异常，getMessage() 常常是 null，只打 null 等于没打
+            log.warn("天气请求失败：{}（{}），目标 {}，检查 weather.host 能不能访问",
+                    e.getClass().getSimpleName(), e.getMessage(), url);
             return null;
         }
     }

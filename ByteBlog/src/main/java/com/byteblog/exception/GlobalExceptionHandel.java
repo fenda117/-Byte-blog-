@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.stream.Collectors;
 
@@ -79,4 +80,11 @@ public class GlobalExceptionHandel {
         log.error("【系统异常】 uri={}",request.getRequestURI(),e);
         return Result.fail(ResultCode.INTERNAL_ERROR);
     }
+    @ExceptionHandler(NoResourceFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Result<Void> handlerNoResourceFound(NoResourceFoundException e) {
+        log.debug("【资源不存在】{}", e.getResourcePath());   // 用 debug，别刷屏
+        return Result.fail(ResultCode.NOT_FOUND.getCode(), "资源不存在：/" + e.getResourcePath());
+    }
+
 }
