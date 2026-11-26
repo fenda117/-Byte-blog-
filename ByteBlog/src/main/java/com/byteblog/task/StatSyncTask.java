@@ -65,14 +65,14 @@ public class StatSyncTask {
         log.info("开始同步项目浏览量数据，共 {} 个字段", result.size() / 2);
         // 遍历Lua脚本，每次步长为2
         for (int i = 0; i < result.size(); i += 2) {
-            String projectId = result.get(i);
-            String increment = result.get(i + 1);
-            // 使用 MyBatis-Plus 更新 MySQL
+            String projectId = String.valueOf(result.get(i));
+            String increment = String.valueOf(result.get(i + 1));
             UpdateWrapper<Project> updateWrapper = new UpdateWrapper<>();
             updateWrapper.eq("id", projectId)
                     .setSql("view_count = view_count + " + increment);
             projectMapper.update(null, updateWrapper);
         }
+
         // 打印完成日志
         log.info("项目浏览量同步完成！");
     }
@@ -89,13 +89,14 @@ public class StatSyncTask {
 
         log.info("开始同步文章浏览量，共 {} 个字段", result.size() / 2);
         for (int i = 0; i < result.size(); i += 2) {
-            String articleId = result.get(i);
-            String increment = result.get(i + 1);
+            String articleId = String.valueOf(result.get(i));
+            String increment = String.valueOf(result.get(i + 1));
             UpdateWrapper<Article> updateWrapper = new UpdateWrapper<>();
             updateWrapper.eq("id", articleId)
                     .setSql("view_count = view_count + " + increment);
             articleMapper.update(null, updateWrapper);
         }
+
         // 打印完成日志
         log.info("文章浏览量同步完成！");
     }

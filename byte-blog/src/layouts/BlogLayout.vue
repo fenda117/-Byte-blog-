@@ -4,10 +4,11 @@ import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useThemeStore } from '../stores/theme'
 import type { ThemeName } from '../stores/theme'
-import { fetchBlogInfo, fetchMusic, fetchStats, searchAll } from '../api'
-import type { Music, SearchItem } from '../api'
+import { fetchBlogInfo, fetchMusic, fetchStats, fetchWeather, searchAll } from '../api'
+import type { Music, SearchItem, WeatherNow } from '../api'
 import type { BlogInfo, Stats } from '../api'
 import TimeCard from '../components/TimeCard.vue'
+import WeatherIcon from '../components/WeatherIcon.vue'
 import { normalizeMediaUrl } from '../utils/media'
 
 const router = useRouter()
@@ -37,7 +38,27 @@ const blogInfo = ref<BlogInfo | null>(null)
 const stats = ref<Stats | null>(null)
 const musicList = ref<Music[]>([])
 
+// ---- 侧边栏天气 ----
+const weather = ref<WeatherNow | null>(null)
+const weatherLoading = ref(true)
+
+/**
+ * 天气要请求外部接口，可能比其它请求慢，所以单独发起、不参与下面那串 await：
+ * 谁先回来谁先渲染，天气慢也不会拖住文章和音乐。
+ */
+async function loadWeather() {
+  try {
+    weather.value = await fetchWeather()
+  } catch (e) {
+    console.warn('加载天气失败', e)
+    weather.value = null
+  } finally {
+    weatherLoading.value = false
+  }
+}
+
 onMounted(async () => {
+  void loadWeather()
   // 三个请求互相独立：任何一个失败都不影响其他模块显示
   try {
     blogInfo.value = await fetchBlogInfo()
@@ -300,12 +321,34 @@ const calendarCells = computed(() => [
           </div>
         </div>
 
-        <!-- 天气（待接 API） -->
-        <div class="side-card">
+        <!-- 天气：未配置或接口异常时整块不渲染，不留半成品 -->
+        <div v-if="weatherLoading || weather" class="side-card">
           <h3><el-icon><Cloudy /></el-icon> 天气</h3>
-          <div class="weather-placeholder">
-            <el-icon :size="30"><Sunny /></el-icon>
-            <p>待接入天气 API</p>
+
+          <div v-if="weatherLoading" class="weather-skeleton">
+            <div class="sk-row sk-circle" />
+            <div class="sk-row sk-line" />
+            <div class="sk-row sk-line short" />
+          </div>
+
+          <div v-else-if="weather" class="weather-body">
+            <div class="weather-main">
+              <WeatherIcon :name="weather.icon" :size="46" class="weather-ico" />
+              <div class="weather-temp">
+                <span class="num">{{ weather.temperature }}</span>
+                <span class="unit">°C</span>
+              </div>
+            </div>
+            <div class="weather-desc">
+              <span class="city">{{ weather.city }}</span>
+              <span class="text">{{ weather.text }}</span>
+            </div>
+            <div class="weather-meta">
+              <span>体感 {{ weather.feelsLike }}°</span>
+              <span>湿度 {{ weather.humidity }}%</span>
+              <span v-if="weather.windDir">{{ weather.windDir }} {{ weather.windScale }} 级</span>
+            </div>
+            <div class="weather-time">{{ weather.updateTime }} 更新</div>
           </div>
         </div>
       </aside>
@@ -460,10 +503,97 @@ const calendarCells = computed(() => [
   font-weight: 700;
 }
 
-/* 天气占位 */
-.weather-placeholder {
-  text-align: center;
-  color: var(--text-secondary);
+/* 天气 */
+.weather-body {
+  animation: weather-in .28s ease-out;
+}
+@keyframes weather-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+.weather-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.weather-ico {
+  color: var(--primary);
+}
+
+.weather-temp {
+  display: flex;
+  align-items: baseline;
+}
+.weather-temp .num {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -1px;
+  color: var(--text-primary);
+}
+.weather-temp .unit {
+  margin-left: 3px;
   font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.weather-desc {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 13px;
+}
+.weather-desc .city {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.weather-desc .text {
+  color: var(--text-secondary);
+}
+
+.weather-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.weather-time {
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  opacity: .7;
+}
+
+/* 加载骨架：先占住高度，避免数据回来时卡片突然长高把下面的内容顶走 */
+.weather-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.sk-row {
+  border-radius: 6px;
+  background: var(--primary-soft);
+  animation: weather-pulse 1.4s ease-in-out infinite;
+}
+.sk-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+}
+.sk-line {
+  height: 12px;
+  width: 74%;
+}
+.sk-line.short {
+  width: 48%;
+}
+@keyframes weather-pulse {
+  0%, 100% { opacity: .45; }
+  50% { opacity: 1; }
 }
 </style>

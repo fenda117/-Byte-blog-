@@ -108,7 +108,7 @@ export interface Stats {
 
 // ============ axios 封装 ============
 const http = axios.create({
-        baseURL: 'https://api.byteblog.dpdns.org/api',
+    baseURL: '/api',
     timeout: 15000,
 })
 
@@ -329,6 +329,37 @@ export function updateBlogInfo(data: object): Promise<BlogInfo> {
 }
 
 // ============ AI Agent（SSE 流式） ============
+
+// ============ 天气 ============
+/** 后端归一化后的图标类别，前端据此选 SVG */
+export type WeatherIconKind = 'clear' | 'partly' | 'cloudy' | 'rain' | 'thunder' | 'snow' | 'fog'
+
+export interface WeatherNow {
+    city: string
+    /** 天气现象文字，例如「少云」 */
+    text: string
+    /** 和风的天气现象代码 */
+    code: string
+    icon: WeatherIconKind
+    temperature: number
+    feelsLike: number
+    /** 相对湿度，百分数 0-100 */
+    humidity: number
+    /** 风向中文，例如「西南」 */
+    windDir: string
+    /** 风力等级 */
+    windScale: number
+    /** 数据时间，MM-dd HH:mm */
+    updateTime: string
+}
+
+/**
+ * 侧边栏天气。
+ * 后端未配置和风天气或外部接口异常时返回 null，前端据此隐藏卡片。
+ */
+export function fetchWeather(): Promise<WeatherNow | null> {
+    return get<WeatherNow | null>('/weather/now')
+}
 
 export interface AgentStatus {
     ready: boolean
